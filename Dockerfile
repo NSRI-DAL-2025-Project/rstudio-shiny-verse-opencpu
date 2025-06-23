@@ -76,6 +76,14 @@ RUN echo '<Directory "/usr/lib/opencpu/www">
 # Enable headers module and the new config
 RUN a2enmod headers && a2enconf opencpu-cors
 
+# Inject file upload size limit into Apache config
+RUN echo '<Directory "/usr/lib/opencpu/www">
+  LimitRequestBody 104857600
+</Directory>' > /etc/apache2/conf-available/opencpu-upload-limit.conf
+
+# Enable the config and restart-safe headers module
+RUN a2enconf opencpu-upload-limit && a2enmod headers
+
 # create init scripts
 RUN \
   mkdir -p /etc/services.d/opencpu-server && \
