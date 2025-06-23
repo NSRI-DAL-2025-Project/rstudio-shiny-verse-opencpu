@@ -66,23 +66,18 @@ RUN \
 RUN \ 
   gdebi --non-interactive /home/builder/opencpu*.deb
 
-# Inject CORS settings
-RUN echo '<Directory "/usr/lib/opencpu/www">
-  Header set Access-Control-Allow-Origin "*"
-  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-  Header set Access-Control-Allow-Headers "Content-Type"
-</Directory>' > /etc/apache2/conf-available/opencpu-cors.conf
-
-# Enable headers module and the new config
-RUN a2enmod headers && a2enconf opencpu-cors
-
-# Inject file upload size limit into Apache config
-RUN echo '<Directory "/usr/lib/opencpu/www">
-  LimitRequestBody 104857600
-</Directory>' > /etc/apache2/conf-available/opencpu-upload-limit.conf
-
-# Enable the config and restart-safe headers module
-RUN a2enconf opencpu-upload-limit && a2enmod headers
+RUN printf '%s\n' \
+  '<IfModule mod_headers.c>' \
+  '  Header always set Access-Control-Allow-Origin "*"' \
+  '  Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"' \
+  '  Header always set Access-Control-Allow-Headers "Content-Type"' \
+  '</IfModule>' \
+  '<Directory "/usr/lib/opencpu/www">' \
+  '  LimitRequestBody 2147483647' \
+  '</Directory>' \
+  > /etc/apache2/conf-available/opencpu-cors.conf && \
+  a2enmod headers && \
+  a2enconf opencpu-cors
 
 # create init scripts
 RUN \
