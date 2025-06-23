@@ -66,6 +66,16 @@ RUN \
 RUN \ 
   gdebi --non-interactive /home/builder/opencpu*.deb
 
+# Inject CORS settings
+RUN echo '<Directory "/usr/lib/opencpu/www">
+  Header set Access-Control-Allow-Origin "*"
+  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+  Header set Access-Control-Allow-Headers "Content-Type"
+</Directory>' > /etc/apache2/conf-available/opencpu-cors.conf
+
+# Enable headers module and the new config
+RUN a2enmod headers && a2enconf opencpu-cors
+
 # create init scripts
 RUN \
   mkdir -p /etc/services.d/opencpu-server && \
