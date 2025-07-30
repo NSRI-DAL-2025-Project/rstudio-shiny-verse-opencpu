@@ -105,6 +105,11 @@ RUN \
 RUN \
   echo "opencpu:opencpu" | chpasswd
 
+# USER builder
+
+# RUN mkdir -p /tmp/ocpu-www-data && chown -R builder:builder /tmp/ocpu-www-data
+
+USER opencpu
 # Apache ports
 EXPOSE 80
 EXPOSE 443
